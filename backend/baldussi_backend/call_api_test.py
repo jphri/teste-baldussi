@@ -1,4 +1,4 @@
-import call_api
+import baldussi_backend.call_api
 
 def call_api_calls_raw_test():
     call_api.calls_raw()
