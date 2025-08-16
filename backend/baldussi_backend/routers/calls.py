@@ -1,5 +1,10 @@
 import baldussi_backend.call_api as call_api
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from baldussi_backend.database import get_db
+from baldussi_backend.models import Call
+
+from datetime import datetime
 
 router = APIRouter(prefix='/calls', tags=['calls'])
 
@@ -15,3 +20,18 @@ async def raw_get_fn(count: int = 100, empresa_id: str | None = None):
 async def get_fn(page: int = 1, limit: int = 100, empresa_id: str | None = None, date_from: str | None = None, date_to: str | None = None, destino: str | None = None, sip_code: str | None = None, q: str | None = None):
     response = call_api.calls(page, limit, empresa_id, date_from, date_to, destino, sip_code)
     return response
+
+@router.post("/ingest")
+async def ingest_fn(db: Session = Depends(get_db)):
+    calls = call_api.calls_raw(2000)
+    processed = 0
+    for call in calls:
+        exists = db.query(Call).filter(Call.chamada_id == call["chamada_id"]).first()
+        if exists:
+            continue
+        if call["data"]:
+            call["data"] = datetime.strptime(call["data"], "%Y-%m-%d %H:%M:%S")
+        db.add(Call(**call))
+        processed += 1
+    db.commit()
+    return processed
