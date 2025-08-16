@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from baldussi_backend.database import get_db
 from baldussi_backend.models import Call
+from baldussi_backend.schema import KpiResponse
 
 from datetime import datetime
 
@@ -41,3 +42,25 @@ async def ingest_fn(db: Session = Depends(get_db)):
         processed += 1
     db.commit()
     return processed
+
+@router.get("/kpi", response_model=KpiResponse)
+async def kpi_fn(db: Session = Depends(get_db)):
+    total = db.query(Call).count()
+    atendidas = db.query(Call).filter(Call.motivo_desligamento == "OK").count()
+    asr = (atendidas / total) * 100
+    acd = 0
+
+    data = db.query(Call).filter(Call.motivo_desligamento == "OK").all()
+    if atendidas > 0:
+        for call in data:
+            acd += call.duracao_real
+        acd /= atendidas
+    else:
+        acd = 0
+
+    return KpiResponse(
+        total=total,
+        atendidas=atendidas,
+        asr=asr,
+        acd=acd
+    )

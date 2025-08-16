@@ -23,3 +23,9 @@ class TokenData(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str
+
+class KpiResponse(BaseModel):
+    total: int
+    atendidas: int
+    asr: float
+    acd: float
