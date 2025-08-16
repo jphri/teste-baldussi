@@ -6,11 +6,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from baldussi_backend.schema import UserOut, UserCreate
 from baldussi_backend.database import get_db
 from baldussi_backend.models import User
+from baldussi_backend.auth import get_current_user
 
 router = APIRouter(prefix='/users', tags=['users'])
 
 @router.get("/", response_model=list[UserOut])
-def list_users(db: Session = Depends(get_db)):
+def list_users(_: User = Depends(get_current_user), db: Session = Depends(get_db)):
     users = db.query(User).all()
     return users
 

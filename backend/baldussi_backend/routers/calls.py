@@ -4,13 +4,15 @@ from sqlalchemy.orm import Session
 from baldussi_backend.database import get_db
 from baldussi_backend.models import Call
 from baldussi_backend.schema import KpiResponse
+from baldussi_backend.auth import get_current_user
+from baldussi_backend.models import User
 
 from datetime import datetime
 
 router = APIRouter(prefix='/calls', tags=['calls'])
 
 @router.get('/raw')
-async def raw_get_fn(count: int = 100, empresa_id: str | None = None):
+async def raw_get_fn(_: User = Depends(get_current_user), count: int = 100, empresa_id: str | None = None):
     response = call_api.calls_raw(count, empresa_id)
     return {
         "count": len(response),
@@ -18,12 +20,12 @@ async def raw_get_fn(count: int = 100, empresa_id: str | None = None):
     }
 
 @router.get("/get")
-async def get_fn(page: int = 1, limit: int = 100, empresa_id: str | None = None, date_from: str | None = None, date_to: str | None = None, destino: str | None = None, sip_code: str | None = None, q: str | None = None):
+async def get_fn(_: User = Depends(get_current_user), page: int = 1, limit: int = 100, empresa_id: str | None = None, date_from: str | None = None, date_to: str | None = None, destino: str | None = None, sip_code: str | None = None, q: str | None = None):
     response = call_api.calls(page, limit, empresa_id, date_from, date_to, destino, sip_code)
     return response
 
 @router.post("/ingest")
-async def ingest_fn(db: Session = Depends(get_db)):
+async def ingest_fn(_: User = Depends(get_current_user), db: Session = Depends(get_db)):
     calls = call_api.calls_raw(2000)
     processed = 0
     for call in calls:
@@ -44,7 +46,7 @@ async def ingest_fn(db: Session = Depends(get_db)):
     return processed
 
 @router.get("/kpi", response_model=KpiResponse)
-async def kpi_fn(db: Session = Depends(get_db)):
+async def kpi_fn(_: User = Depends(get_current_user), db: Session = Depends(get_db)):
     total = db.query(Call).count()
     atendidas = db.query(Call).filter(Call.motivo_desligamento == "OK").count()
     asr = (atendidas / total) * 100
