@@ -31,6 +31,12 @@ async def ingest_fn(db: Session = Depends(get_db)):
             continue
         if call["data"]:
             call["data"] = datetime.strptime(call["data"], "%Y-%m-%d %H:%M:%S")
+        if call["duracao_real"]:
+            tempo = datetime.strptime(call["duracao_real"], "%H:%M:%S")
+            call["duracao_real"] = tempo.hour * 3600 + tempo.minute * 60 + tempo.second
+        if call["duracao"]:
+            tempo = datetime.strptime(call["duracao"], "%H:%M:%S")
+            call["duracao"] = tempo.hour * 3600 + tempo.minute * 60 + tempo.second
         db.add(Call(**call))
         processed += 1
     db.commit()
