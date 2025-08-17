@@ -1,5 +1,6 @@
 import baldussi_backend.call_api as call_api
 from fastapi import APIRouter, Depends
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from baldussi_backend.database import get_db
 from baldussi_backend.models import Call
@@ -66,3 +67,22 @@ async def kpi_fn(_: User = Depends(get_current_user), db: Session = Depends(get_
         asr=asr,
         acd=acd
     )
+
+@router.get('/calls_per_day')
+async def calls_per_day(_: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    data = db.query(
+        func.count(Call.chamada_id).label('total'),
+        func.date(Call.data).label('day')
+    ).group_by(
+        func.date(Call.data)
+    ).order_by(
+        func.date(Call.data)
+    )
+    l = []
+    for row in data:
+        a = {}
+        a["total"] = row.total
+        a["data"] = row.day
+        l.append(a)
+
+    return l
