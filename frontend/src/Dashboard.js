@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import CallsTable from "./CallsTable";
 
 export default function Dashboard() {
   const [kpis, setKpis] = useState(null);
@@ -50,6 +51,7 @@ export default function Dashboard() {
       <p><strong>Atendidas:</strong> {kpis.atendidas}</p>
       <p><strong>ASR:</strong> {kpis.asr}%</p>
       <p><strong>ACD (tempo médio):</strong> {kpis.acd} segundos</p>
+      <CallsTable/>
     </div>
   );
 }
