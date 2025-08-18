@@ -2,13 +2,10 @@ import logo from './logo.svg';
 import './App.css';
 import {Routes, Route} from 'react-router-dom';
 import LoginPage from './LoginPage';
-import Dashboard from './Dashboard';
 import { Topbar } from './Topbar';
-
-function Greet(props) {
-  return (<h1>Hello, {props.name}</h1>)
-}
-
+import CallsTable from './CallsTable';
+import KPI from './KPIs';
+import CallsPerDayGraph from './CallsPerDayGraph'
 
 function App() {
   return (
@@ -16,7 +13,9 @@ function App() {
       <Topbar/>
       <Routes>
         <Route path="/login" element={<LoginPage/>}/>
-        <Route path="/dashboard" element={<Dashboard/>}/>
+        <Route path="/table" element={<CallsTable/>}/>
+        <Route path="/kpi" element={<KPI/>}/>
+        <Route path="/graph" element={<CallsPerDayGraph/>}/>
       </Routes>
     </div>
   );

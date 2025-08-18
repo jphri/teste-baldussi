@@ -30,7 +30,7 @@ export default function LoginPage() {
       const data = await res.json();
       localStorage.setItem("token", data.access_token);
 
-      navigate("/dashboard");
+      navigate("/kpi");
     } catch (err) {
       setError(err.message);
     }
