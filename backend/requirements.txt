@@ -7,3 +7,4 @@ sqlalchemy
 bcrypt
 pydantic
 python-jose[cryptography]
+python-multipart

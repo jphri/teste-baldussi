@@ -50,7 +50,7 @@ async def ingest_fn(_: User = Depends(get_current_user), db: Session = Depends(g
 async def kpi_fn(_: User = Depends(get_current_user), db: Session = Depends(get_db)):
     total = db.query(Call).count()
     atendidas = db.query(Call).filter(Call.motivo_desligamento == "OK").count()
-    asr = (atendidas / total) * 100
+    asr = 0
     acd = 0
 
     data = db.query(Call).filter(Call.motivo_desligamento == "OK").all()
@@ -58,8 +58,10 @@ async def kpi_fn(_: User = Depends(get_current_user), db: Session = Depends(get_
         for call in data:
             acd += call.duracao_real
         acd /= atendidas
+        asr = (atendidas / total) * 100
     else:
         acd = 0
+        asr = 0
 
     return KpiResponse(
         total=total,
